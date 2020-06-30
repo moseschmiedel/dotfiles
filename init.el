@@ -163,26 +163,42 @@
   :config
   (helm-mode 1))
 
-;; https://github.com/hlissner/emacs-doom-themes
-(use-package doom-themes
-  :ensure t
+(use-package base16-theme
+  :ensure nil
+  :load-path "site-lisp/emacs"
+  :init
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/site-lisp/emacs/templates/build")
   :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-	doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-snazzy t)
+  (load-theme 'base16-snazzy t))
 
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
+;; Set the cursor color based on the evil state
+(defvar my/base16-colors base16-snazzy-colors)
+(setq evil-emacs-state-cursor   `(,(plist-get my/base16-colors :base0D) box)
+      evil-insert-state-cursor  `(,(plist-get my/base16-colors :base0D) bar)
+      evil-motion-state-cursor  `(,(plist-get my/base16-colors :base0E) box)
+      evil-normal-state-cursor  `(,(plist-get my/base16-colors :base0B) box)
+      evil-replace-state-cursor `(,(plist-get my/base16-colors :base08) bar)
+      evil-visual-state-cursor  `(,(plist-get my/base16-colors :base09) box))
+;; https://github.com/hlissner/emacs-doom-themes
+;; (use-package doom-themes
+;;   :ensure t
+;;   :config
+;;   ;; Global settings (defaults)
+;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+;;	doom-themes-enable-italic t) ; if nil, italics is universally disabled
+;;   (load-theme 'doom-snazzy t)
 
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
-  (doom-themes-treemacs-config)
+;;   ;; Enable flashing mode-line on errors
+;;   (doom-themes-visual-bell-config)
 
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config))
+;;   ;; Enable custom neotree theme (all-the-icons must be installed!)
+;;   (doom-themes-neotree-config)
+;;   ;; or for treemacs users
+;;   (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+;;   (doom-themes-treemacs-config)
+
+;;   ;; Corrects (and improves) org-mode's native fontification.
+;;   (doom-themes-org-config))
 
 ;; https://github.com/seagle0128/doom-modeline
 (use-package doom-modeline
@@ -503,7 +519,7 @@
  '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
-    (raku-mode treemacs-icons-dired treemacs-magit treemacs-icon-dired treemacs-projectile circe php-mode evil-commentary evil-easymotion cdlatex which-key evil-leader yasnippet-snippets all-the-icons-dired yaml-mode visual-regexp yasnippet indent-guide origami highlight-symbol rainbow-mode web-mode pdf-tools latex-preview-pane multiple-cursors auctex haskell-mode frame-local ov dash-functional sublimity doom-themes powerline-evil git-messenger diff-hl forge use-package projectile magit helm evil-nerd-commenter evil-collection dashboard company centaur-tabs all-the-icons)))
+    (base16-theme helm-mode raku-mode treemacs-icons-dired treemacs-magit treemacs-icon-dired treemacs-projectile circe php-mode evil-commentary evil-easymotion cdlatex which-key evil-leader yasnippet-snippets all-the-icons-dired yaml-mode visual-regexp yasnippet indent-guide origami highlight-symbol rainbow-mode web-mode pdf-tools latex-preview-pane multiple-cursors auctex haskell-mode frame-local ov dash-functional sublimity doom-themes powerline-evil git-messenger diff-hl forge use-package projectile magit helm evil-nerd-commenter evil-collection dashboard company centaur-tabs all-the-icons)))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces
