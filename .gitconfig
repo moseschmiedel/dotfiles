@@ -1,0 +1,74 @@
+[color]
+        branch = auto
+        diff = auto
+        status = auto
+        ui = true
+
+[alias]
+        amend = commit --amend --verbose
+        b = branch
+        c = commit -v
+        ca = commit -av
+        cam = commit -am
+        cav = commit -av
+        cm = commit -m
+        co = checkout
+        cv = commit -v
+        c-p = cherry-pick
+        ff = merge --ff
+        fixup = commit --fixup
+        r = remote
+        l = log --oneline
+        st = status
+        push-with-lease = push --force-with-lease
+        rb-con = rebase --continue
+        wc = whatchanged
+        p = diff --cached
+        rb = rebase
+        entr = ! git ls-files | entr
+
+[user]
+        email = mose.schmiedel@web.de
+        name = Mose Schmiedel
+
+[core]
+        editor = vim
+        excludesfile = ~/.gitignore
+
+[push]
+        default = upstream
+[rebase]
+        autosquash = true
+
+[branch]
+        # https://stackoverflow.com/a/22147540
+        autoSetupRebase = always
+        autosetupmerge = true
+
+[merge]
+        ff = false
+        conflictstyle = diff3
+
+[status]
+        showUntrackedFiles = all
+
+[pull]
+        rebase = true
+
+[interactive]
+        singleKey = true
+        diffFilter = diff-highlight
+
+[fetch]
+        prune = true
+
+[pager]
+        diff = diff-highlight | less
+        log = diff-highlight | less
+        show = diff-highlight | less
+
+[diff]
+        compactionHeuristic = true
+
+[gui]
+        encoding = utf-8 
