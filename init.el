@@ -1,7 +1,8 @@
 (setq user-full-name "Mose Schmiedel")
 (setq user-mail-address "mose.schmiedel@web.de")
 
-(set-default-font "Iosevka Term SS09-11")
+
+(set-default-font "Iosevka Term SS14-11")
 
 ;; disable menubar and toolbar
 (menu-bar-mode -1)
@@ -99,20 +100,28 @@
   :config
   (evil-collection-init))
 
-;; https://github.com/cofi/evil-leader
-(use-package evil-leader
+(defun open-config ()
+    (interactive)
+  (find-file "~/.emacs.d/init.el"))
+
+;; https://github.com/noctuid/general.el
+(use-package general
   :ensure t
   :config
-  (global-evil-leader-mode)
-  (evil-leader/set-leader "<SPC>")
-  (evil-leader/set-key
+  (general-create-definer my-leader-def
+    :prefix "SPC")
+  (my-leader-def
+    :states 'normal
+    :keymaps 'override
     "e" 'find-file
     "b" 'switch-to-buffer
     "k" 'kill-buffer
     "x" 'eval-buffer
-    "c" (lambda () (interactive) (find-file "~/.emacs.d/init.el"))
-  )
-  (evil-mode 1))
+    "c" 'open-config
+    "a" 'org-agenda)
+)
+
+(evil-mode 1)
 
 ;; https://github.com/justbur/emacs-which-key
 (use-package which-key
@@ -167,12 +176,14 @@
   :ensure nil
   :load-path "site-lisp/emacs"
   :init
-  (add-to-list 'custom-theme-load-path "~/.emacs.d/site-lisp/emacs/templates/build")
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/site-lisp/emacs/build")
   :config
-  (load-theme 'base16-snazzy t))
+  (load-theme 'base16-snazzy-with-sweet t)
+  (set-background-color "#1a1e21")
+  )
 
 ;; Set the cursor color based on the evil state
-(defvar my/base16-colors base16-snazzy-colors)
+(defvar my/base16-colors base16-snazzy-with-sweet-colors)
 (setq evil-emacs-state-cursor   `(,(plist-get my/base16-colors :base0D) box)
       evil-insert-state-cursor  `(,(plist-get my/base16-colors :base0D) bar)
       evil-motion-state-cursor  `(,(plist-get my/base16-colors :base0E) box)
@@ -251,7 +262,7 @@
   :ensure t
   :config
   (projectile-mode +1)
-  (setq projectile-project-search-path '("~/coding_projects/"))
+  (setq projectile-project-search-path '("/media/devel"))
   (setq projectile-sort-order 'recentf)
   (setq projectile-switch-project-action #'projectile-dired)
   (setq projectile-completion-system 'helm))
@@ -369,6 +380,12 @@
 
 (use-package raku-mode
   :defer t
+  :ensure t)
+
+(use-package cperl-mode
+  :ensure t)
+
+(use-package rust-mode
   :ensure t)
 
 ;; https://www.gnu.org/software/auctex/manual/auctex.html
@@ -498,9 +515,85 @@
   :after treemacs magit
   :ensure t)
 
+(use-package fill-column-indicator
+  :ensure t
+  :config
+  (setq fci-rule-width 4)
+  (setq fci-rule-color "#C44E4E")
+  )
+
+(define-globalized-minor-mode global-fci-mode fci-mode
+(lambda ()
+    (if (and
+	(not (string-match "^\*.*\*$" (buffer-name)))
+	(not (eq major-mode 'dired-mode))
+	(not (eq major-mode 'org-mode)))
+	(fci-mode 1))))
+(global-fci-mode 1)
+
 (global-linum-mode)
 
+;;** Org Mode
+(setq org-todo-keywords
+  '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+(setq org-hide-emphasis-markers t)
 
+(font-lock-add-keywords 'org-mode
+			'(("^ *\\([-]\\) "
+			   (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+(use-package org-bullets
+  :ensure t
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+;; (let* ((variable-tuple
+;;	(cond ((x-list-fonts "Iosevka")         '(:font "Iosevka"))
+;;	      ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+;;	      ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+;;	      ((x-list-fonts "Verdana")         '(:font "Verdana"))
+;;	      ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+;;	      (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+;;        (base-font-color     (face-foreground 'default nil 'default))
+;;        (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+
+;;   (custom-theme-set-faces
+;;    'user
+;;    `(org-level-8 ((t (,@headline ,@variable-tuple))))
+;;    `(org-level-7 ((t (,@headline ,@variable-tuple))))
+;;    `(org-level-6 ((t (,@headline ,@variable-tuple))))
+;;    `(org-level-5 ((t (,@headline ,@variable-tuple))))
+;;    `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+;;    `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
+;;    `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
+;;    `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
+;;    `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
+
+(use-package htmlize
+  :ensure t)
+
+(custom-theme-set-faces
+ 'user
+ '(variable-pitch ((t (:family "Iosevka SS14" :height 110))))
+ '(fixed-pitch ((t (:family "Iosevka Term SS14" :height 110)))))
+
+(add-hook 'org-mode-hook 'variable-pitch-mode)
+(add-hook 'org-mode-hook 'visual-line-mode)
+
+(custom-theme-set-faces
+ 'user
+ '(org-block ((t (:inherit fixed-pitch))))
+ '(org-code ((t (:inherit (shadow fixed-pitch)))))
+ '(org-document-info ((t (:foreground "dark orange"))))
+ '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+ '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+ '(org-link ((t (:foreground "royal blue" :underline t))))
+ '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-property-value ((t (:inherit fixed-pitch))) t)
+ '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+ '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+ '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -516,10 +609,12 @@
      (output-dvi "xdvi")
      (output-pdf "Zathura"))))
  '(helm-completion-style (quote emacs))
+ '(inhibit-startup-screen t)
  '(menu-bar-mode nil)
+ '(org-agenda-files (quote ("/media/devel/jarvis/jarvis-todo.org")))
  '(package-selected-packages
    (quote
-    (base16-theme helm-mode raku-mode treemacs-icons-dired treemacs-magit treemacs-icon-dired treemacs-projectile circe php-mode evil-commentary evil-easymotion cdlatex which-key evil-leader yasnippet-snippets all-the-icons-dired yaml-mode visual-regexp yasnippet indent-guide origami highlight-symbol rainbow-mode web-mode pdf-tools latex-preview-pane multiple-cursors auctex haskell-mode frame-local ov dash-functional sublimity doom-themes powerline-evil git-messenger diff-hl forge use-package projectile magit helm evil-nerd-commenter evil-collection dashboard company centaur-tabs all-the-icons)))
+    (htmlize fill-column-indicator rust-mode dockerfile-mode base16-theme helm-mode raku-mode treemacs-icons-dired treemacs-magit treemacs-icon-dired treemacs-projectile circe php-mode evil-commentary evil-easymotion cdlatex which-key evil-leader yasnippet-snippets all-the-icons-dired yaml-mode visual-regexp yasnippet indent-guide origami highlight-symbol rainbow-mode web-mode pdf-tools latex-preview-pane multiple-cursors auctex haskell-mode frame-local ov dash-functional sublimity doom-themes powerline-evil git-messenger diff-hl forge use-package projectile magit helm evil-nerd-commenter evil-collection dashboard company centaur-tabs all-the-icons)))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces
@@ -527,4 +622,18 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Iosevka Term SS09" :foundry "BE5N" :slant normal :weight normal :height 112 :width normal)))))
+ '(default ((t (:family "Iosevka Term SS14" :foundry "BE5N" :slant normal :weight normal :height 112 :width normal))))
+ '(fixed-pitch ((t (:family "Iosevka Term SS14" :height 110))))
+ '(org-block ((t (:inherit fixed-pitch))))
+ '(org-code ((t (:inherit (shadow fixed-pitch)))))
+ '(org-document-info ((t (:foreground "dark orange"))))
+ '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+ '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+ '(org-link ((t (:foreground "royal blue" :underline t))))
+ '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-property-value ((t (:inherit fixed-pitch))) t)
+ '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+ '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+ '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+ '(variable-pitch ((t (:family "Iosevka SS14" :height 110)))))
