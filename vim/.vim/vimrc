@@ -1,0 +1,45 @@
+filetype plugin indent on
+syntax on
+set backspace=eol,indent,start
+set hidden
+set noswapfile
+set modeline
+
+let $RTP=split(&runtimepath, ',')[0]
+let $RC="$HOME/.vim/vimrc"
+set path=.,**
+
+" vim-plug installation plus update
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+
+Plug 'kyoz/purify', { 'rtp': 'vim' }
+Plug 'itchyny/lightline.vim'
+Plug 'chrisbra/Colorizer'
+
+call plug#end()
+
+" TrueColor support Alacritty
+if exists('+termguicolors')
+	  let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
+	  let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
+	  set termguicolors
+endif
+
+" Colorscheme
+colorscheme purify
+
+" lightline config
+set laststatus=2
+set noshowmode
+let g:lightline = {
+	\ 'colorscheme': 'purify',
+	\ }
+
+" Colorizer config
+let g:colorizer_auto_filetype='css,html,haskell,js,conf,yml,sh'

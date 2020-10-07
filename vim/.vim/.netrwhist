@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =2
+let g:netrw_dirhist_2='/home/mose/.vim'
+let g:netrw_dirhist_1='/home/mose/.vim/plugged'
+let g:netrw_dirhist_0='/home/mose/.vim/plugged/embark'
+let g:netrw_dirhist_9='/home/mose/.vim/plugged/embark/colors'
+let g:netrw_dirhist_8='/home/mose/.vim/plugged/embark'
+let g:netrw_dirhist_7='/home/mose/.config/qt5ct'
+let g:netrw_dirhist_6='/home/mose/.vim'
+let g:netrw_dirhist_5='/home/mose/projects/rust/editor/src'
+let g:netrw_dirhist_4='/home/mose/projects/rust/editor'
+let g:netrw_dirhist_3='/home/mose/.vim/after/ftplugin'
