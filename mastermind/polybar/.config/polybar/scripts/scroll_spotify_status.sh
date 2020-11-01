@@ -1,0 +1,1 @@
+../polybar-spotify/scroll_spotify_status.sh
