@@ -103,7 +103,7 @@ Config {
         --   (%F = y-m-d date, %a = day of week, %T = h:m:s time)
         , Run Date           "<fc=#212121>%d.%b %Y %H:%M</fc>" "date" 10
 
-	    , Run Com "arch-updates.sh" [] "updates" 30
+	    , Run Com "arch-updates.sh" [] "updates" 300
 
 	    , Run Alsa "pulse" "Master" [ "--template"  , "<status>"
                                     , "--"

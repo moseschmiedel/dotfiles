@@ -3,10 +3,7 @@
 if [ $1 == "startup" ]
 	then
 	export QT_QPA_PLATFORMTHEME=qt5ct
-	nitrogen --restore &
+	nitrogen --restore
 	picom &
-	/home/mose/.config/polybar/launch.sh &
-	light-locker &
-	dunst &
 	nextcloud &
 fi

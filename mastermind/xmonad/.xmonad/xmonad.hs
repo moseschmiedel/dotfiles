@@ -1,6 +1,4 @@
 import System.Exit
-import Data.Monoid
-
 import XMonad
 import XMonad.Layout.Spacing
 import XMonad.Layout.Fullscreen
@@ -11,25 +9,17 @@ import XMonad.Hooks.Script
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.UrgencyHook
-import qualified XMonad.Hooks.EwmhDesktops as EWMH
-
-import qualified DBus as D
-import qualified DBus.Client as D
-import qualified Codec.Binary.UTF8.String as UTF8
-
+import XMonad.Hooks.SetWMName
 import Graphics.X11.ExtraTypes.XF86
+import Data.Monoid
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
-main :: IO()
 main = do
-    dbus <- D.connectSession
-    -- Request access to the DBus name
-    D.requestName dbus (D.busName_ "org.xmonad.Log")
-        [D.nameAllowReplacement, D.nameReplaceExisting, D.nameDoNotQueue]
+    d <- spawnPipe "xmobar /home/mose/.xmonad/data/xmobar/xmonad_bar"
 
-    xmonad $ EWMH.ewmh $ fullscreenSupport $ docks def
+    xmonad $ fullscreenSupport $ docks def
         { 
           terminal          = myTerminal
         , focusFollowsMouse = myFocusFollowsMouse
@@ -42,8 +32,8 @@ main = do
 
         , layoutHook        = myLayoutHook
         , manageHook        = manageSpawn <+> manageDocks <+> myManageHook
-        , handleEventHook   = EWMH.fullscreenEventHook <+> myEventHook
-        , logHook           = dynamicLogWithPP (myLogHook dbus)
+        , handleEventHook   = myEventHook
+        , logHook           = myLogHook d
         , startupHook       = myStartupHook
         }
 
@@ -122,7 +112,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
 
     -- Restart xmonad
-    , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
+    , ((modm              , xK_q     ), spawn "xmonad --recompile; pkill xmobar; xmonad --restart")
     ]
     ++
 
@@ -184,46 +174,32 @@ myLayoutHook = avoidStruts ((gaps tiled) ||| (gaps (Mirror tiled))) ||| noBorder
 myManageHook = composeAll
     [ className =? "MPlayer"        --> doFloat
     , className =? "Gimp"           --> doFloat
+    , className =? "jetbrains-intellij-client" --> doFloat
+    , className =? "jetbrains-webstorm" <&&> (title =? "Welcome to WebStorm" <||> title =? "win0") --> doFloat
+    , className =? "jetbrains-idea" <&&> (title =? "Import IntelliJ IDEA Settings" <||> title =? "win0" <||> title =? "Welcome to IntelliJ IDEA") --> doFloat
+    , className =? "jetbrains-studio" <&&> (title =? "Android Studio Setup Wizard" <||> title =? "win0" <||> title =? "Welcome to Android Studio") --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore
     ]
 
-bgNormal  = "#5C6F7B"
-bg1       = "#414f57"
-bg2       = "#333e45"
-red       = "#ec7875"
-
-myLogHook :: D.Client -> PP
-myLogHook dbus = def 
-    { ppOutput = dbusOutput dbus 
-    , ppCurrent = wrap ("%{B" ++ bg1 ++ "}  ") "  %{B-}"
-    , ppVisible = wrap ("%{B" ++ bg2 ++ "}  ") "  %{B-}"
-    , ppUrgent = wrap ("%{F" ++ red ++ "}  ") "  %{F-}"
-    , ppHiddenNoWindows = wrap ("%{B" ++ bgNormal ++ "}  ") "  %{B-}"
-    , ppHidden = wrap ("%{B" ++ bgNormal ++ "}  ") "  %{B-}"
-    , ppWsSep = ""
-    , ppSep = " : "
-    , ppLayout = const ""
-    , ppTitle = const ""
-    }
-
--- Emit a DBus signal on log updates
-dbusOutput :: D.Client -> String -> IO()
-dbusOutput dbus str = do
-    let signal = (D.signal objectPath interfaceName memberName) {
-        D.signalBody = [D.toVariant $ UTF8.decodeString str]
-        }
-    D.emit dbus signal
-   where
-    objectPath = D.objectPath_ "/org/xmonad/Log"
-    interfaceName = D.interfaceName_ "org.xmonad.Log"
-    memberName = D.memberName_ "Update"
-
 myEventHook = mempty
 
-myStartupHook = do
-    spawnOn "3" "geary"
+myLogHook h = dynamicLogWithPP $ defaultPP
+    {
+    -- output to the handle we were given as an argument
+      ppOutput          = hPutStrLn h
+    , ppTitle           = const ""
+    , ppLayout          = const ""
+    , ppCurrent         = xmobarColor "#006000" "" . wrap "[" "]"
+    , ppVisible         = xmobarColor "#e49400" "" . wrap "(" ")"
+    , ppUrgent          = xmobarColor "darkred" ""
+    , ppSep             = ""
+    }
+
+myStartupHook = do 
+    setWMName "LG3D"
     spawnOn "4" "keepassxc"
+    spawnOn "3" "geary"
     execScriptHook "startup"
 
 
